@@ -1,7 +1,7 @@
 ---
 
-- name: apply opensearch security config
-  command:
+- name: Apply opensearch security config
+  ansible.builtin.command:
     argv:
       - /usr/share/opensearch/plugins/opensearch-security/tools/securityadmin.sh
       - -cd
@@ -16,8 +16,9 @@
       - /etc/opensearch/certs/admin-key.pem
   environment:
     OPENSEARCH_JAVA_HOME: /usr/share/opensearch/jdk
+  changed_when: true
 
-- name: restart opensearch
-  service:
+- name: Restart opensearch
+  ansible.builtin.service:
     name: opensearch
     state: restarted

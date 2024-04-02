@@ -1,4 +1,5 @@
 ---
-  - hosts: '{{ target }}'
-    roles:
-      - role: '{{ playbook_dir }}'
+- name: Install and configure opensearch
+  hosts: '{{ target | default("opensearch") }}'
+  roles:
+    - role: '{{ playbook_dir }}'
