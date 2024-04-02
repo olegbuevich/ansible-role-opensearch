@@ -1,0 +1,23 @@
+---
+
+- name: apply opensearch security config
+  command:
+    argv:
+      - /usr/share/opensearch/plugins/opensearch-security/tools/securityadmin.sh
+      - -cd
+      - /etc/opensearch/opensearch-security/
+      - -icl
+      - -nhnv
+      - -cacert
+      - /etc/opensearch/certs/root-ca.pem
+      - -cert
+      - /etc/opensearch/certs/admin.pem
+      - -key
+      - /etc/opensearch/certs/admin-key.pem
+  environment:
+    OPENSEARCH_JAVA_HOME: /usr/share/opensearch/jdk
+
+- name: restart opensearch
+  service:
+    name: opensearch
+    state: restarted

@@ -1,0 +1,112 @@
+---
+
+opensearch_version: 2.12.0
+
+opensearch_root_ca_certificate: {}
+opensearch_admin_certificate: {}
+opensearch_admin_private_key: {}
+opensearch_http_certificate: {}
+opensearch_http_key: {}
+opensearch_node_certificate: {}
+opensearch_node_key: {}
+
+opensearch_config_directory: "/etc/opensearch"
+
+opensearch_config_default:
+  cluster:
+    name: opensearch
+  discovery:
+    type: single-node
+  http:
+    port: 9200
+  network:
+    host: _local_
+  path:
+    data: /var/lib/opensearch
+    logs: /var/log/opensearch
+  plugins:
+    security:
+      allow_unsafe_democertificates: false
+      allow_default_init_securityindex: false
+      audit.type: internal_opensearch
+      authcz:
+        admin_dn:
+          - CN=kirk,OU=client,O=client,L=test, C=de
+      enable_snapshot_restore_privilege: true
+      check_snapshot_restore_write_privileges: true
+      restapi:
+        roles_enabled:
+          - all_access
+          - security_rest_api_access
+      ssl:
+        http:
+          clientauth_mode: OPTIONAL
+          enabled: true
+          enabled_protocols:
+            - "TLSv1.2"
+            - "TLSv1.3"
+          pemcert_filepath: "certs/{{ opensearch_http_certificate.filename }}"
+          pemkey_filepath: "certs/{{ opensearch_http_key.filename }}"
+          pemtrustedcas_filepath: certs/{{ opensearch_root_ca_certificate.filename }}
+        transport:
+          enforce_hostname_verification: false
+          resolve_hostname: false
+          pemcert_filepath: "certs/{{ opensearch_node_certificate.filename }}"
+          pemkey_filepath: "certs/{{ opensearch_node_key.filename }}"
+          pemtrustedcas_filepath: certs/{{ opensearch_root_ca_certificate.filename }}
+      system_indices:
+        enabled: true
+        indices:
+          - .opendistro-alerting-alert*
+          - .opendistro-alerting-config
+          - .opendistro-anomaly-checkpoints
+          - .opendistro-anomaly-detection-state
+          - .opendistro-anomaly-detector*
+          - .opendistro-anomaly-results*
+          - .opendistro-asynchronous-search-response*
+          - .opendistro-reports-*
+          - .opensearch-notebooks
+          - .opensearch-notifications-*
+          - .opensearch-observability
+          - .plugins-ml-model
+          - .plugins-ml-task
+          - .replication-metadata-store
+  transport:
+    port: 9300
+
+opensearch_security_plugin_config_default:
+  config:
+    dynamic:
+      http:
+        anonymous_auth_enabled: false
+        xff:
+          enabled: false
+      authc:
+        basic_internal_auth_domain:
+          description: "Authenticate via HTTP Basic against internal users database"
+          http_enabled: true
+          transport_enabled: true
+          order: 0
+          http_authenticator:
+            type: basic
+            challenge: true
+          authentication_backend:
+            type: intern
+        clientcert_auth_domain:
+          description: "Authenticate via SSL client certificates"
+          http_enabled: true
+          transport_enabled: true
+          order: 1
+          http_authenticator:
+            type: clientcert
+            config:
+              username_attribute: cn
+            challenge: false
+          authentication_backend:
+            type: noop
+
+opensearch_action_groups_default: {}
+opensearch_internal_users_default: {}
+opensearch_roles_mappings_default: {}
+opensearch_roles_default: {}
+opensearch_tenants_default: {}

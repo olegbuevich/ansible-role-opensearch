@@ -1,0 +1,84 @@
+---
+
+# - name: Import the public GPG key
+#   ansible.builtin.rpm_key:
+#     key: https://artifacts.opensearch.org/publickeys/opensearch.pgp
+#     state: present
+
+- name: Create a repository file for OpenSearch
+  get_url:
+    url: https://artifacts.opensearch.org/releases/bundle/opensearch/2.x/opensearch-2.x.repo
+    dest: /etc/yum.repos.d/opensearch-2.x.repo
+    mode: 0644
+    owner: root
+    group: root
+  register: opensearch_yum_repository
+
+- name: Clean YUM cache
+  command: yum clean all
+  when: opensearch_yum_repository.changed
+
+- name: Install OpenSearch package
+  yum:
+    name: "opensearch-{{ opensearch_version }}"
+    state: present
+
+- import_tasks: vars.yml
+
+- name: Provide OpenSearch configuration file
+  template:
+    src: etc/opensearch/opensearch.yml.j2
+    dest: "{{ opensearch_config_directory }}/opensearch.yml"
+    owner: opensearch
+    group: opensearch
+    mode: 0640
+  notify:
+    - restart opensearch
+
+- name: Create directory for TLS certificates
+  file:
+    path: "{{ opensearch_config_directory }}/certs"
+    state: directory
+    owner: opensearch
+    group: opensearch
+    mode: 0500
+
+- name: Provide TLS certificates
+  copy:
+    content: "{{ item.content }}"
+    dest: "{{ opensearch_config_directory }}/certs/{{ item.filename }}"
+    owner: opensearch
+    group: opensearch
+    mode: 0400
+  with_items:
+    - "{{ opensearch_root_ca_certificate }}"
+    - "{{ opensearch_admin_certificate }}"
+    - "{{ opensearch_admin_private_key }}"
+    - "{{ opensearch_http_certificate }}"
+    - "{{ opensearch_http_key }}"
+    - "{{ opensearch_node_certificate }}"
+    - "{{ opensearch_node_key }}"
+  no_log: true
+
+- name: Provide OpenSearch sucurity plugin configuration file
+  template:
+    src: "etc/opensearch/opensearch-security/{{ item }}.j2"
+    dest: "/etc/opensearch/opensearch-security/{{ item }}"
+    owner: opensearch
+    group: opensearch
+    mode: 0640
+  loop:
+    - action_groups.yml
+    - config.yml
+    - internal_users.yml
+    - roles_mapping.yml
+    - roles.yml
+    - tenants.yml
+  notify:
+    - apply opensearch security config
+
+- name: Ensure opensearch service is started and enabled on boot
+  service:
+    name: opensearch
+    state: started
+    enabled: true

@@ -1,0 +1,10 @@
+---
+{{ ansible_managed | comment }}
+
+_meta:
+  type: "tenants"
+  config_version: 2
+
+{% if opensearch_tenants | length > 0 %}
+{{ opensearch_tenants | to_nice_yaml(indent=2) }}
+{% endif %}

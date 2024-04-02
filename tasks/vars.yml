@@ -1,0 +1,43 @@
+---
+
+- name: Overlay opensearch_config on top of defaults
+  set_fact:
+    opensearch_config: '{{ opensearch_config_default | combine(config_layer, recursive=True) }}'
+  vars:
+    config_layer: '{{ opensearch_config | default({}) }}'
+
+- name: Overlay opensearch_security_plugin_config on top of defaults
+  set_fact:
+    opensearch_security_plugin_config: '{{ opensearch_security_plugin_config_default | combine(config_layer, recursive=True) }}'
+  vars:
+    config_layer: '{{ opensearch_security_plugin_config | default({}) }}'
+
+- name: Overlay opensearch_action_groups on top of defaults
+  set_fact:
+    opensearch_action_groups: '{{ opensearch_action_groups_default | combine(config_layer, recursive=True) }}'
+  vars:
+    config_layer: '{{ opensearch_action_groups | default({}) }}'
+
+- name: Overlay opensearch_internal_users on top of defaults
+  set_fact:
+    opensearch_internal_users: '{{ opensearch_internal_users_default | combine(config_layer, recursive=True) }}'
+  vars:
+    config_layer: '{{ opensearch_internal_users | default({}) }}'
+
+- name: Overlay opensearch_roles_mappings on top of defaults
+  set_fact:
+    opensearch_roles_mappings: '{{ opensearch_roles_mappings_default | combine(config_layer, recursive=True) }}'
+  vars:
+    config_layer: '{{ opensearch_roles_mappings | default({}) }}'
+
+- name: Overlay opensearch_roles on top of defaults
+  set_fact:
+    opensearch_roles: '{{ opensearch_roles_default | combine(config_layer, recursive=True) }}'
+  vars:
+    config_layer: '{{ opensearch_roles | default({}) }}'
+
+- name: Overlay opensearch_tenants on top of defaults
+  set_fact:
+    opensearch_tenants: '{{ opensearch_tenants_default | combine(config_layer, recursive=True) }}'
+  vars:
+    config_layer: '{{ opensearch_tenants | default({}) }}'

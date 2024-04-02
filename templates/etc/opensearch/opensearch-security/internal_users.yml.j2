@@ -1,0 +1,10 @@
+---
+{{ ansible_managed | comment }}
+
+_meta:
+  type: "internalusers"
+  config_version: 2
+
+{% if opensearch_internal_users | length > 0 %}
+{{ opensearch_internal_users | to_nice_yaml(indent=2) }}
+{% endif %}

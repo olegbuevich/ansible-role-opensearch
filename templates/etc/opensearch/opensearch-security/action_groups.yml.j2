@@ -1,0 +1,10 @@
+---
+{{ ansible_managed | comment }}
+
+_meta:
+  type: "actiongroups"
+  config_version: 2
+
+{% if opensearch_action_groups | length > 0 %}
+{{ opensearch_action_groups | to_nice_yaml(indent=2) }}
+{% endif %}
